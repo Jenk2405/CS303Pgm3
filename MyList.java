@@ -2,6 +2,8 @@ import java.util.Collection;
 
 public interface MyList<E> extends java.util.Collection<E> {
 
+    //ABSTRACT METHODS
+
     //Abstract Method: Create a new larger array, double the current size + 1   
     public void add(int index, E e);
 
@@ -26,6 +28,30 @@ public interface MyList<E> extends java.util.Collection<E> {
     //Abstract Method: return the size of the array
     public int size();
 
+    //DEFAULT METHODS
+    @Override
+    //Default Method: add the given element to the end of the array   
+    //PRE: accepts the element to remove
+    //POST:adds element to the end of the array  
+    public default boolean add(E e){
+        System.out.println("adding: " + e);
+        add(size(), e);
+        return true;
+    }
+    
+    @Override       
+    //Default method:  Copy all elements in 'c' to the list
+    public default boolean addAll(Collection<? extends E> c){
+      // Left as an exercise in MyArrayList Class
+      return false;
+    }
+
+    //Default Method: Returns false
+    public default boolean containsAll(Collection<?> c){
+      // Left as an exercise in MyArrayList Class
+      return false;
+    } 
+    
     @Override 
     //Default Method: Return true if this list contains no elements  
     //PRE: none
@@ -46,16 +72,21 @@ public interface MyList<E> extends java.util.Collection<E> {
       else
         return false;
     }
-
+    
     @Override
-    //Default Method: add the given element to the end of the array   
-    //PRE: accepts the element to remove
-    //POST:adds element to the end of the array  
-    public default boolean add(E e){
-        add(size(), e);
-        return true;
+    //Default Method: Removes all the elements in c from this collection.
+    public default boolean removeAll(Collection<?> c) {
+      // Left as an exercise in MyArrayList Class
+      return false;
+    } 
+    
+    @Override
+    //Retains the elements that are both in c and in this collection.
+    public default boolean retainAll(Collection<?> c) {
+        // not implementing at this time
+        return false;
     }
- 
+    
     @Override
     //Default Method: returns null  
     public default Object[] toArray() {
@@ -63,25 +94,12 @@ public interface MyList<E> extends java.util.Collection<E> {
         return null;
     }
 
-    //abstract method
-    public boolean addAll(Collection<? extends E> c);
-    /*
-    //Default Method: Returns false 
-    public default boolean addAll(Collection<? extends E> c){
-      // Left as an exercise in MyArrayList Class
-      return false;
-    }  
-    */
-    //Default Method: Returns false
-    public default boolean containsAll(Collection<?> c){
-      // Left as an exercise in MyArrayList Class
-      return false;
-    } 
+    @Override
+    public default <T> T[] toArray(T[] array) {
+        // not implementing at this time
+        return null;
+    }
 
-    //Default Method: Removes all the elements in c from this collection.
-    public default boolean removeAll(Collection<?> c) {
-      // Left as an exercise in MyArrayList Class
-      return false;
-    } 
 }
+
 

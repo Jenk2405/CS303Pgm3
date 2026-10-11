@@ -1,0 +1,47 @@
+Loaded A1input.txt: 100 valid integers; skipped 0 invalid token(s).
+Find 1: position 0
+Find 100: position 99
+Find 101: not found
+Modified index 0 from 1 to 999
+Modified index 99 from 100 to 888
+Modified index 1 from 2 to 555
+Printed list containing 100 values.
+Added: 1212
+Added: 1313
+Added: 1414
+Printed list containing 103 values.
+Loaded A1input.txt: 100 valid integers; skipped 0 invalid token(s).
+Printed list containing 100 values.
+Find 1: position 0
+Find 100: position 99
+Find 101: position -1
+Modified index 0 from 1 to 999
+Modified index 99 from 100 to 888
+Modified index 1 from 2 to 555
+Printed list containing 100 values.
+Added: 1212
+Added: 1313
+Added: 1414
+Printed list containing 103 values.
+Items added: [5656, 7676, 8989]
+Printed list containing 106 values.
+Removed index 1 value 555
+Removed index 0 value 999
+Removed index 100 value 1414
+Printed list containing 103 values.
+Values removed: [3, 4, 8989]
+Printed list containing 100 values.
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Loaded A2input.txt: 94 valid integers; skipped 6 invalid token(s).
+Printed list containing 94 values.
+Find 2: position -1
+Find 100: position 93
+Modified index 0 from 1 to 999
+Contains-all check completed.
+Contains-all check completed.
+Printed list containing 94 values.

@@ -10,35 +10,40 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Programmer: [Your Name]
- * Assignment: CS303 Program 3 - Dynamic Arrays
+ * Menu and input/output functions for CS303 Program 3.
  *
- * PRE: A Scanner and MyArrayList are provided when needed.
- * POST: Performs menu operations, validates input, and records
- * actions in Program3Report.txt.
+ * PRE: The user supplies input through a Scanner.
+ * POST: Menu operations update the dynamic array and record actions.
  *
- * References:
- * W3Schools, Java Arrays:
- * https://www.w3schools.com/java/java_arrays.asp
- *
- * W3Schools, Java Generics:
- * https://www.w3schools.com/java/java_generics.asp
+ * W3Schools references:
+ * Java Arrays: https://www.w3schools.com/java/java_arrays.asp
+ * Java Generics: https://www.w3schools.com/java/java_generics.asp
  */
 public class Functions {
+
+    private static MyArrayList<Integer> list;
 
     private static final Path REPORT =
             Paths.get("Program3Report.txt");
 
     private Functions() {
-        // Utility class; no object needs to be created.
     }
 
     /**
-     * PRE: Scanner and list are initialized.
-     * POST: Performs the selected menu operation.
+     * PRE: A Scanner connected to user input is supplied.
+     * POST: Loads the file on the first call, then processes menu
+     * operations until the user selects Q.
+     *
+     * AI assistance (ChatGPT): Helped adapt menu processing to
+     * the original Main.java, which repeatedly calls getMenuItem()
+     * until the user selects Q. The original menu choices and
+     * their corresponding functions were preserved.
      */
-    public static String getMenuItem(
-            Scanner input, MyArrayList<Integer> list) {
+    public static String getMenuItem(Scanner input) {
+
+        if (list == null) {
+            list = loadFile(input);
+        }
 
         printMenu();
 
@@ -47,37 +52,41 @@ public class Functions {
 
         switch (choice) {
             case "A":
-                addItem(input, list);
+                addItem(input);
                 break;
+
             case "B":
-                addList(input, list);
+                addList(input);
                 break;
+
             case "C":
-                containsAllValues(input, list);
+                containsAllValues(input);
                 break;
+
             case "D":
-                deleteValue(input, list);
+                deleteValue(input);
                 break;
+
             case "E":
-                deleteList(input, list);
+                deleteList(input);
                 break;
+
             case "F":
-                findValue(input, list);
+                findValue(input);
                 break;
+
             case "M":
-                modifyValue(input, list);
+                modifyValue(input);
                 break;
+
             case "P":
-                printList(list);
+                printList();
                 break;
-            case "T":
-                list.trimToSize();
-                System.out.println("Array trimmed to current size.");
-                message("Array trimmed to current size.");
-                break;
+
             case "Q":
                 System.out.println("Goodbye!");
                 break;
+
             default:
                 System.out.println(
                     "Invalid menu choice. Please try again."
@@ -88,18 +97,8 @@ public class Functions {
     }
 
     /**
-     * Compatibility overload for the original starter Main.java.
-     */
-    public static String getMenuItem(Scanner input) {
-        System.out.println(
-            "Choose a file and load the list before using the menu."
-        );
-        return "Q";
-    }
-
-    /**
      * PRE: None.
-     * POST: Displays all available menu operations.
+     * POST: Displays all available menu choices.
      */
     private static void printMenu() {
         System.out.println("\nMODIFY YOUR LIST");
@@ -111,94 +110,105 @@ public class Functions {
         System.out.println("F: Find a Value");
         System.out.println("M: Modify a Value");
         System.out.println("P: Print Array");
-        System.out.println("T: Trim Array to Size");
         System.out.println("Q: Quit");
     }
 
     /**
-     * PRE: A1input.txt and A2input.txt are available.
-     * POST: Loads valid integers and skips invalid tokens.
+     * PRE: The user selects 1 or 2 and the corresponding file exists.
+     * POST: Loads valid integers and skips malformed tokens.
+     *
+     * AI assistance (ChatGPT): Helped revise file loading to
+     * populate the custom MyArrayList implementation while
+     * handling invalid integer tokens and file-reading errors.
      */
-    public static MyArrayList<Integer> loadFile(Scanner input) {
+    private static MyArrayList<Integer> loadFile(Scanner input) {
 
         while (true) {
             System.out.print("Choose input file (1 or 2): ");
             String choice = input.nextLine().trim();
 
             if (!choice.equals("1") && !choice.equals("2")) {
-                System.out.println("Invalid choice. Enter 1 or 2.");
+                System.out.println(
+                    "Invalid choice. Enter 1 or 2."
+                );
                 continue;
             }
 
             Path path = Paths.get(
-                choice.equals("1") ? "A1input.txt" : "A2input.txt"
+                choice.equals("1")
+                    ? "A1input.txt"
+                    : "A2input.txt"
             );
 
-            MyArrayList<Integer> values = new MyArrayList<>();
+            MyArrayList<Integer> loaded = new MyArrayList<>();
             int errors = 0;
 
             try (Scanner fileInput = new Scanner(path)) {
+
                 while (fileInput.hasNext()) {
                     String token = fileInput.next();
 
                     try {
-                        values.add(Integer.parseInt(token));
+                        loaded.add(Integer.parseInt(token));
                     } catch (NumberFormatException ex) {
                         errors++;
-                        message("Rejected invalid input token: " + token);
+                        report("Skipped invalid token: " + token);
                     }
                 }
 
                 System.out.println(
                     "File " + path.getFileName()
                     + " processed successfully. Loaded "
-                    + values.size() + " valid integers; skipped "
-                    + errors + " invalid token(s)."
-                );
-
-                message(
-                    "Loaded " + path.getFileName()
-                    + ": " + values.size()
+                    + loaded.size()
                     + " valid integers; skipped "
                     + errors + " invalid token(s)."
                 );
 
-                return values;
+                report(
+                    "Loaded " + path.getFileName()
+                    + ": " + loaded.size()
+                    + " valid integers; skipped "
+                    + errors + " invalid token(s)."
+                );
+
+                return loaded;
 
             } catch (IOException ex) {
                 System.out.println(
                     "Could not read " + path
-                    + ". Make sure it is in the project folder."
+                    + ". Make sure it is in the working directory."
                 );
-                message("File read error: " + ex.getMessage());
+
+                report("File read error: " + ex.getMessage());
             }
         }
     }
 
     /**
      * A: Add one integer.
-     * PRE: User enters an integer.
-     * POST: Appends the integer to the list.
+     * PRE: The user enters an integer.
+     * POST: Appends the value to the list.
      */
-    public static void addItem(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void addItem(Scanner input) {
 
-        Integer value = readInteger(input, "Enter integer to add: ");
+        Integer value = readInteger(
+            input, "Enter integer to add: "
+        );
 
         if (value != null) {
             list.add(value);
+
             System.out.println("Added: " + value);
-            message("Added: " + value);
+            report("Added: " + value);
         }
     }
 
     /**
      * B: Add a group of integers.
      * PRE: Values are separated by spaces.
-     * POST: Appends valid integers to the list.
+     * POST: Appends all valid values.
      */
-    public static void addList(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void addList(Scanner input) {
 
         System.out.print(
             "Enter values to add separated by spaces: "
@@ -207,60 +217,58 @@ public class Functions {
         String line = input.nextLine().trim();
         List<Integer> added = new ArrayList<>();
 
-        String[] tokens = line.isEmpty()
-                ? new String[0] : line.split("\\s+");
+        if (!line.isEmpty()) {
+            for (String token : line.split("\\s+")) {
+                try {
+                    int value = Integer.parseInt(token);
 
-        for (String token : tokens) {
-            try {
-                int value = Integer.parseInt(token);
-                list.add(value);
-                added.add(value);
-            } catch (NumberFormatException ex) {
-                System.out.println("Ignoring invalid value: " + token);
+                    list.add(value);
+                    added.add(value);
+
+                } catch (NumberFormatException ex) {
+                    System.out.println(
+                        "Ignoring invalid value: " + token
+                    );
+                }
             }
         }
 
         System.out.println("Items added to your list: " + added);
-        message("Items added: " + added);
+        report("Items added: " + added);
     }
 
     /**
-     * C: Check whether all supplied values exist.
+     * C: Check whether all requested values exist.
      * PRE: Values are separated by spaces.
-     * POST: Reports whether all requested values are present.
+     * POST: Reports whether all valid requested values are present.
+     *
+     * AI assistance (ChatGPT): Helped adapt the collection check
+     * to use the containsAll() operation implemented in MyArrayList.
      */
-    public static void containsAllValues(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void containsAllValues(Scanner input) {
 
         System.out.print(
-            "Enter the values you would like to check "
+            "Enter the values you would like check "
             + "separated by spaces: "
         );
 
         String line = input.nextLine().trim();
-        List<Integer> found = new ArrayList<>();
-        boolean allFound = true;
+        List<Integer> requested = new ArrayList<>();
+        boolean valid = !line.isEmpty();
 
-        String[] tokens = line.isEmpty()
-                ? new String[0] : line.split("\\s+");
-
-        for (String token : tokens) {
-            try {
-                int value = Integer.parseInt(token);
-
-                if (list.contains(value)) {
-                    found.add(value);
-                } else {
-                    allFound = false;
+        if (!line.isEmpty()) {
+            for (String token : line.split("\\s+")) {
+                try {
+                    requested.add(Integer.parseInt(token));
+                } catch (NumberFormatException ex) {
+                    valid = false;
                 }
-            } catch (NumberFormatException ex) {
-                allFound = false;
             }
         }
 
-        if (allFound) {
+        if (valid && list.containsAll(requested)) {
             System.out.println(
-                "These valid items are in your list: " + found
+                "These valid items are in your list: " + requested
             );
         } else {
             System.out.println(
@@ -268,16 +276,15 @@ public class Functions {
             );
         }
 
-        message("Contains-all check completed.");
+        report("ContainsAll checked: " + requested);
     }
 
     /**
      * D: Delete an element by index.
-     * PRE: User supplies an existing index.
-     * POST: Removes the element and reports its former value.
+     * PRE: The user enters a valid index.
+     * POST: Removes and reports the selected element.
      */
-    public static void deleteValue(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void deleteValue(Scanner input) {
 
         while (true) {
             Integer index = readInteger(
@@ -290,8 +297,8 @@ public class Functions {
 
             if (index < 0 || index >= list.size()) {
                 System.out.println(
-                    "Index " + index
-                    + " is not in range. Please try again."
+                    "Index: " + index
+                    + " is not in range. Please try again"
                 );
                 continue;
             }
@@ -303,7 +310,10 @@ public class Functions {
                 + removed + " has been removed."
             );
 
-            message("Removed index " + index + " value " + removed);
+            report(
+                "Removed index " + index + " value " + removed
+            );
+
             return;
         }
     }
@@ -312,43 +322,52 @@ public class Functions {
      * E: Delete a group of values.
      * PRE: Values are separated by spaces.
      * POST: Removes matching values and reports those removed.
+     *
+     * AI assistance (ChatGPT): Helped adapt group deletion to use
+     * the custom list's remove operation while collecting and
+     * reporting the values that were successfully removed.
      */
-    public static void deleteList(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void deleteList(Scanner input) {
 
-        System.out.print("Enter the list of values to remove: ");
+        System.out.print(
+            "Enter the list of values to remove: "
+        );
 
         String line = input.nextLine().trim();
         List<Integer> removed = new ArrayList<>();
 
-        String[] tokens = line.isEmpty()
-                ? new String[0] : line.split("\\s+");
+        if (!line.isEmpty()) {
+            for (String token : line.split("\\s+")) {
+                try {
+                    int value = Integer.parseInt(token);
 
-        for (String token : tokens) {
-            try {
-                int value = Integer.parseInt(token);
+                    if (list.remove(Integer.valueOf(value))) {
+                        removed.add(value);
+                    }
 
-                if (list.remove(Integer.valueOf(value))) {
-                    removed.add(value);
+                } catch (NumberFormatException ex) {
+                    // Invalid values are ignored.
                 }
-            } catch (NumberFormatException ex) {
-                // Invalid tokens are ignored.
             }
         }
 
-        System.out.println("Items removed to your list: " + removed);
-        message("Values removed: " + removed);
+        System.out.println(
+            "Items removed to your list: " + removed
+        );
+
+        report("Values removed: " + removed);
     }
 
     /**
      * F: Find a value.
-     * PRE: User supplies an integer.
-     * POST: Prints its index or reports that it was not found.
+     * PRE: The user enters an integer.
+     * POST: Reports the first matching index or that it was not found.
      */
-    public static void findValue(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void findValue(Scanner input) {
 
-        Integer value = readInteger(input, "Enter value to find: ");
+        Integer value = readInteger(
+            input, "Enter value to find: "
+        );
 
         if (value == null) {
             return;
@@ -367,16 +386,18 @@ public class Functions {
             );
         }
 
-        message("Find " + value + ": position " + position);
+        report(
+            "Find " + value + ": "
+            + (position >= 0 ? "position " + position : "not found")
+        );
     }
 
     /**
      * M: Modify an element.
-     * PRE: User supplies a valid index and integer replacement.
+     * PRE: The user supplies a valid index and replacement integer.
      * POST: Replaces the value and reports old and new values.
      */
-    public static void modifyValue(
-            Scanner input, MyArrayList<Integer> list) {
+    private static void modifyValue(Scanner input) {
 
         int index;
 
@@ -388,6 +409,7 @@ public class Functions {
             if (candidate == null
                     || candidate < 0
                     || candidate >= list.size()) {
+
                 System.out.println(
                     "Index is not in range. Please try again."
                 );
@@ -402,33 +424,32 @@ public class Functions {
 
         while ((replacement = readInteger(
                 input, "Enter new value: ")) == null) {
-            // readInteger already reports invalid input.
+            // Prompt again when input is invalid.
         }
 
-        Integer old = (Integer) list.set(index, replacement);
+        Integer old = list.set(index, replacement);
 
         System.out.println(
             "Item at index: " + index + " was "
             + old + " is now " + replacement
         );
 
-        message(
+        report(
             "Modified index " + index + " from "
             + old + " to " + replacement
         );
     }
 
     /**
-     * P: Print the current array in aligned rows.
-     * PRE: List may be empty or populated.
-     * POST: Prints all elements with consistent spacing.
+     * P: Print the array in aligned rows of ten.
+     * PRE: The list may be empty or populated.
+     * POST: Prints all elements in their current order.
      */
-    public static void printList(MyArrayList<Integer> list) {
+    private static void printList() {
 
         System.out.println("\nPRINTING YOUR LIST");
 
         for (int i = 0; i < list.size(); i++) {
-            // Fixed-width formatting aligns values of different lengths.
             System.out.printf("%5d ", list.get(i));
 
             if ((i + 1) % 10 == 0
@@ -441,12 +462,14 @@ public class Functions {
             System.out.println("(empty)");
         }
 
-        message("Printed list containing " + list.size() + " values.");
+        report(
+            "Printed list containing " + list.size() + " values."
+        );
     }
 
     /**
-     * PRE: Scanner and prompt are provided.
-     * POST: Returns an integer or null for invalid input.
+     * PRE: A prompt and Scanner are provided.
+     * POST: Returns the integer entered, or null for invalid input.
      */
     private static Integer readInteger(
             Scanner input, String prompt) {
@@ -465,10 +488,11 @@ public class Functions {
     }
 
     /**
-     * PRE: A message is provided.
+     * PRE: A report message is provided.
      * POST: Appends the message to Program3Report.txt.
      */
-    private static void message(String text) {
+    private static void report(String text) {
+
         try (BufferedWriter writer = Files.newBufferedWriter(
                 REPORT,
                 StandardOpenOption.CREATE,
@@ -479,8 +503,7 @@ public class Functions {
 
         } catch (IOException ex) {
             System.out.println(
-                "Note: could not write report file: "
-                + ex.getMessage()
+                "Could not write report file: " + ex.getMessage()
             );
         }
     }

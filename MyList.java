@@ -1,215 +1,100 @@
+
 import java.util.Collection;
 
-/**
- * Generic interface for the CS303 dynamic array assignment.
- *
- * Reference: W3Schools, Java Generics
- * https://www.w3schools.com/java/java_generics.asp
- */
-public interface MyList<E> extends Collection<E> {
+public interface MyList<E> extends java.util.Collection<E> {
 
     // ABSTRACT METHODS
 
-    /**
-     * PRE: Index is between zero and size, inclusive.
-     * POST: Inserts the element at the specified index.
-     */
+    // Abstract Method: Create a new larger array, double current size + 1
     public void add(int index, E e);
 
-    /**
-     * PRE: None.
-     * POST: Removes all elements.
-     */
+    // Abstract Method: Clear the list
     public void clear();
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Returns the element at that index.
-     */
+    // Abstract Method: Retrieve the element at the index position
     public E get(int index);
 
-    /**
-     * PRE: An object is provided for comparison.
-     * POST: Returns its first index, or -1 if not found.
-     */
+    // Abstract Method: Return index of object or -1 if not found
     public int indexOf(Object e);
-
-    /**
-     * PRE: An element is provided for comparison.
-     * POST: Returns its last index, or -1 if not found.
-     */
     public int lastIndexOf(E e);
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Removes and returns the element at that index.
-     */
+    // Abstract Method: Remove element at specified position.
+    // Shift subsequent elements left and return removed element.
     public E remove(int index);
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Replaces that element and returns its previous value.
-     */
+    // Abstract Method: Replace element at specified position.
     public Object set(int index, E e);
 
-    /**
-     * PRE: None.
-     * POST: Returns the number of elements in the collection.
-     */
+    // Abstract Method: Return size of the array
     public int size();
-
 
     // DEFAULT METHODS
 
-    /**
-     * PRE: An element is provided.
-     * POST: Adds it to the end of the list.
-     */
     @Override
+    // PRE: Accepts the element to add.
+    // POST: Adds element to the end of the array.
     public default boolean add(E e) {
+        System.out.println("adding: " + e);
         add(size(), e);
         return true;
     }
 
-    /**
-     * PRE: A collection is provided.
-     * POST: Adds all its elements to this collection.
-     */
     @Override
-    public default boolean addAll(
-            Collection<? extends E> c) {
-
-        boolean changed = false;
-
-        for (E element : c) {
-            add(element);
-            changed = true;
-        }
-
-        return changed;
+    // Copy all elements in c to the list.
+    public default boolean addAll(Collection<? extends E> c) {
+        // Implemented in MyArrayList.
+        return false;
     }
 
-    /**
-     * PRE: A collection is provided.
-     * POST: Returns true if every element in it is present.
-     */
-    @Override
+    // Returns whether all elements in c are present.
     public default boolean containsAll(Collection<?> c) {
-        for (Object element : c) {
-            if (!contains(element)) {
-                return false;
-            }
-        }
-
-        return true;
+        // Implemented in MyArrayList.
+        return false;
     }
 
-    /**
-     * PRE: None.
-     * POST: Returns true if the collection is empty.
-     */
     @Override
+    // PRE: None.
+    // POST: Returns true if the array is empty.
     public default boolean isEmpty() {
         return size() == 0;
     }
 
-    /**
-     * PRE: An object is provided.
-     * POST: Removes its first occurrence if found.
-     */
     @Override
+    // PRE: Accepts the element to remove.
+    // POST: Returns true if the element was found and removed.
     public default boolean remove(Object e) {
-        int index = indexOf(e);
-
-        if (index >= 0) {
-            remove(index);
+        if (indexOf(e) >= 0) {
+            remove(indexOf(e));
             return true;
+        } else {
+            return false;
         }
+    }
 
+    @Override
+    // Removes all elements in c from this collection.
+    public default boolean removeAll(Collection<?> c) {
+        // Implemented in MyArrayList.
         return false;
     }
 
-    /**
-     * PRE: A collection is provided.
-     * POST: Removes all elements also present in c.
-     */
     @Override
-    public default boolean removeAll(Collection<?> c) {
-        boolean changed = false;
-
-        Iterator<E> iterator = iterator();
-
-        while (iterator.hasNext()) {
-            if (c.contains(iterator.next())) {
-                iterator.remove();
-                changed = true;
-            }
-        }
-
-        return changed;
-    }
-
-    /**
-     * PRE: A collection is provided.
-     * POST: Retains only elements also present in c.
-     */
-    @Override
+    // Retains only elements also present in c.
     public default boolean retainAll(Collection<?> c) {
-        boolean changed = false;
-
-        Iterator<E> iterator = iterator();
-
-        while (iterator.hasNext()) {
-            if (!c.contains(iterator.next())) {
-                iterator.remove();
-                changed = true;
-            }
-        }
-
-        return changed;
+        // Not implemented in the original interface.
+        return false;
     }
 
-    /**
-     * PRE: None.
-     * POST: Returns an array containing all elements.
-     */
     @Override
+    // Returns an array containing the elements.
     public default Object[] toArray() {
-        Object[] result = new Object[size()];
-        int index = 0;
-
-        for (E element : this) {
-            result[index++] = element;
-        }
-
-        return result;
+        // Implemented in MyArrayList.
+        return null;
     }
 
-    /**
-     * PRE: An array is provided.
-     * POST: Returns an array containing all elements, using
-     * the supplied array when it is large enough.
-     */
     @Override
     public default <T> T[] toArray(T[] array) {
-        int count = size();
-
-        @SuppressWarnings("unchecked")
-        T[] result = array.length >= count
-                ? array
-                : (T[]) java.lang.reflect.Array.newInstance(
-                    array.getClass().getComponentType(), count);
-
-        int index = 0;
-
-        for (E element : this) {
-            result[index++] = (T) element;
-        }
-
-        if (result.length > count) {
-            result[count] = null;
-        }
-
-        return result;
+        // Not implemented in the original interface.
+        return null;
     }
 }

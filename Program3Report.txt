@@ -45,3 +45,21 @@ Modified index 0 from 1 to 999
 Contains-all check completed.
 Contains-all check completed.
 Printed list containing 94 values.
+Added: 42
+Printed list containing 95 values.
+Find 42: position 36
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Rejected invalid input token: ERR
+Loaded A2input.txt: 94 valid integers; skipped 6 invalid token(s).
+Added: 42
+Printed list containing 95 values.
+Find 42: position 36
+Loaded A1input.txt: 100 valid integers; skipped 0 invalid token(s).
+Printed list containing 100 values.
+Loaded A1input.txt: 100 valid integers; skipped 0 invalid token(s).
+Added: 1999
+Printed list containing 101 values.

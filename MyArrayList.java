@@ -1,181 +1,122 @@
+
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * A dynamic array implementation for CS303 Program 3.
- *
- * PRE: Elements are stored in insertion order and indexes are zero-based.
- * POST: The backing array grows when needed and list operations preserve order.
- *
- * References:
- * W3Schools, Java Arrays:
- * https://www.w3schools.com/java/java_arrays.asp
- *
- * W3Schools, Java Generics:
- * https://www.w3schools.com/java/java_generics.asp
- *
- * W3Schools, Java Iterator:
- * https://www.w3schools.com/java/java_iterator.asp
- */
 public class MyArrayList<E> extends AbstractCollection<E>
         implements MyList<E> {
 
-    public static final int INITIAL_CAPACITY = 5;
+    private static final int INITIAL_CAPACITY = 5;
 
     private E[] data;
     private int size;
 
-    /**
-     * PRE: None.
-     * POST: Creates an empty array with an initial capacity of five.
-     */
-    @SuppressWarnings("unchecked")
     public MyArrayList() {
         data = (E[]) new Object[INITIAL_CAPACITY];
         size = 0;
     }
 
-    /**
-     * PRE: An array of objects may be supplied.
-     * POST: Copies the supplied elements into this dynamic array.
-     */
     public MyArrayList(E[] objects) {
-        this();
+        data = (E[]) new Object[Math.max(INITIAL_CAPACITY, objects.length)];
+        size = 0;
 
-        if (objects != null) {
-            ensureCapacityFor(objects.length);
-
-            for (E item : objects) {
-                data[size++] = item;
-            }
+        for (E object : objects) {
+            add(object);
         }
     }
 
-    /**
-     * PRE: The requested capacity is nonnegative.
-     * POST: Expands the backing array if the requested capacity is larger.
-     *
-     * W3Schools reference:
-     * https://www.w3schools.com/java/java_arrays.asp
+    /*
+     * AI assistance (ChatGPT): Helped revise dynamic array
+     * resizing so the backing array grows when additional
+     * elements exceed its current capacity.
      */
-    private void ensureCapacityFor(int needed) {
-        if (needed <= data.length) {
-            return;
+    private void ensureCapacity(int minCapacity) {
+        if (minCapacity > data.length) {
+            int newCapacity = Math.max(data.length * 2, minCapacity);
+            data = Arrays.copyOf(data, newCapacity);
         }
-
-        int newCapacity = data.length;
-
-        while (newCapacity < needed) {
-            newCapacity = newCapacity * 2 + 1;
-        }
-
-        data = Arrays.copyOf(data, newCapacity);
     }
 
-    /**
-     * PRE: Index should identify an existing element.
-     * POST: Throws an exception if the index is invalid.
-     */
-    private void checkElementIndex(int index) {
+    private void checkIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException(
-                "Index " + index + " is not in range 0.."
-                + (size - 1)
-            );
+                    "Index: " + index + ", Size: " + size);
         }
     }
 
-    /**
-     * PRE: Index should identify an insertion position.
-     * POST: Throws an exception if the position is invalid.
-     */
-    private void checkPositionIndex(int index) {
-        if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException(
-                "Index " + index + " is not in range 0.." + size
-            );
-        }
-    }
-
-    /**
-     * PRE: Index is between zero and size, inclusive.
-     * POST: Inserts the element at the requested position.
-     * Existing elements are shifted right when necessary.
+    /*
+     * AI assistance (ChatGPT): Helped revise indexed insertion
+     * by shifting existing elements to make room for the new
+     * element while preserving their order.
      */
     @Override
-    public void add(int index, E element) {
-        checkPositionIndex(index);
-        ensureCapacityFor(size + 1);
+    public void add(int index, E e) {
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException(
+                    "Index: " + index + ", Size: " + size);
+        }
+
+        ensureCapacity(size + 1);
 
         for (int i = size; i > index; i--) {
             data[i] = data[i - 1];
         }
 
-        data[index] = element;
+        data[index] = e;
         size++;
     }
 
-    /**
-     * PRE: An element is supplied.
-     * POST: Appends the element to the end of the list.
-     */
     @Override
-    public boolean add(E element) {
-        add(size, element);
+    public boolean add(E e) {
+        add(size, e);
         return true;
     }
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Returns the element at that index.
+    /*
+     * AI assistance (ChatGPT): Helped implement addAll() to append
+     * elements from another collection to the custom dynamic array
+     * and return whether the list changed.
      */
     @Override
+    public boolean addAll(Collection<? extends E> c) {
+        boolean changed = false;
+
+        for (E element : c) {
+            add(element);
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    @Override
+    public boolean contains(Object e) {
+        return indexOf(e) >= 0;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object element : c) {
+            if (!contains(element)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public E get(int index) {
-        checkElementIndex(index);
+        checkIndex(index);
         return data[index];
     }
 
-    /**
-     * PRE: None.
-     * POST: Returns the number of stored elements.
-     */
     @Override
-    public int size() {
-        return size;
-    }
-
-    /**
-     * PRE: None.
-     * POST: Removes all elements and resets the size to zero.
-     */
-    @Override
-    public void clear() {
-        Arrays.fill(data, 0, size, null);
-        size = 0;
-    }
-
-    /**
-     * PRE: A value is supplied for comparison.
-     * POST: Returns true if the value is present.
-     */
-    @Override
-    public boolean contains(Object value) {
-        return indexOf(value) >= 0;
-    }
-
-    /**
-     * PRE: A value is supplied for comparison.
-     * POST: Returns its first index, or -1 if not found.
-     */
-    @Override
-    public int indexOf(Object value) {
+    public int indexOf(Object e) {
         for (int i = 0; i < size; i++) {
-            if (value == null
-                    ? data[i] == null
-                    : value.equals(data[i])) {
+            if (e == null ? data[i] == null : e.equals(data[i])) {
                 return i;
             }
         }
@@ -183,16 +124,10 @@ public class MyArrayList<E> extends AbstractCollection<E>
         return -1;
     }
 
-    /**
-     * PRE: A value is supplied for comparison.
-     * POST: Returns its last index, or -1 if not found.
-     */
     @Override
-    public int lastIndexOf(E value) {
+    public int lastIndexOf(E e) {
         for (int i = size - 1; i >= 0; i--) {
-            if (value == null
-                    ? data[i] == null
-                    : value.equals(data[i])) {
+            if (e == null ? data[i] == null : e.equals(data[i])) {
                 return i;
             }
         }
@@ -200,81 +135,88 @@ public class MyArrayList<E> extends AbstractCollection<E>
         return -1;
     }
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Removes and returns that element.
-     * Elements after it shift one position left.
+    /*
+     * AI assistance (ChatGPT): Helped revise indexed removal so
+     * later elements shift left after removal and the list size
+     * is updated correctly.
      */
     @Override
     public E remove(int index) {
-        checkElementIndex(index);
+        checkIndex(index);
 
-        E removed = data[index];
+        E removedElement = data[index];
 
         for (int i = index; i < size - 1; i++) {
             data[i] = data[i + 1];
         }
 
-        data[--size] = null;
+        data[size - 1] = null;
+        size--;
 
-        return removed;
+        return removedElement;
     }
 
-    /**
-     * PRE: Index identifies an existing element.
-     * POST: Replaces the element and returns its previous value.
-     */
     @Override
-    public Object set(int index, E element) {
-        checkElementIndex(index);
+    public boolean remove(Object e) {
+        int index = indexOf(e);
 
-        E previous = data[index];
-        data[index] = element;
-
-        return previous;
-    }
-
-    /**
-     * PRE: None.
-     * POST: Reduces the backing array to the current number of elements.
-     */
-    public void trimToSize() {
-        if (data.length != size) {
-            data = Arrays.copyOf(data, size);
+        if (index == -1) {
+            return false;
         }
+
+        remove(index);
+        return true;
     }
 
-    /**
-     * PRE: None.
-     * POST: Returns an iterator for traversing the list.
-     *
-     * W3Schools reference:
-     * https://www.w3schools.com/java/java_iterator.asp
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        boolean changed = false;
+        Iterator<E> iterator = iterator();
+
+        while (iterator.hasNext()) {
+            if (c.contains(iterator.next())) {
+                iterator.remove();
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        boolean changed = false;
+        Iterator<E> iterator = iterator();
+
+        while (iterator.hasNext()) {
+            if (!c.contains(iterator.next())) {
+                iterator.remove();
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    /*
+     * AI assistance (ChatGPT): Helped implement iterator traversal
+     * for the custom dynamic array and support removal through
+     * the iterator.
      */
     @Override
     public Iterator<E> iterator() {
         return new ArrayListIterator();
     }
 
-    /**
-     * Inner iterator class used to traverse this dynamic array.
-     */
     private class ArrayListIterator implements Iterator<E> {
-
-        private int current;
+        private int current = 0;
         private int lastReturned = -1;
 
-        /**
-         * POST: Returns true if another element is available.
-         */
         @Override
         public boolean hasNext() {
             return current < size;
         }
 
-        /**
-         * POST: Returns the next element and advances the iterator.
-         */
         @Override
         public E next() {
             if (!hasNext()) {
@@ -285,17 +227,10 @@ public class MyArrayList<E> extends AbstractCollection<E>
             return data[current++];
         }
 
-        /**
-         * PRE: next() has been called and remove() has not
-         * already been called for that element.
-         * POST: Removes the last element returned by next().
-         */
         @Override
         public void remove() {
-            if (lastReturned < 0) {
-                throw new IllegalStateException(
-                    "next() must be called before remove()"
-                );
+            if (lastReturned == -1) {
+                throw new IllegalStateException();
             }
 
             MyArrayList.this.remove(lastReturned);
@@ -304,22 +239,77 @@ public class MyArrayList<E> extends AbstractCollection<E>
         }
     }
 
-    /**
-     * PRE: None.
-     * POST: Returns a readable representation of the list.
+    /*
+     * AI assistance (ChatGPT): Helped implement replacement of
+     * an element at a specified index while returning its
+     * previous value.
      */
+    @Override
+    public E set(int index, E e) {
+        checkIndex(index);
+
+        E previousElement = data[index];
+        data[index] = e;
+
+        return previousElement;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public void clear() {
+        for (int i = 0; i < size; i++) {
+            data[i] = null;
+        }
+
+        size = 0;
+    }
+
+    @Override
+    public Object[] toArray() {
+        return Arrays.copyOf(data, size);
+    }
+
+    @Override
+    public <T> T[] toArray(T[] array) {
+        if (array.length < size) {
+            array = (T[]) java.lang.reflect.Array.newInstance(
+                    array.getClass().getComponentType(), size);
+        }
+
+        for (int i = 0; i < size; i++) {
+            array[i] = (T) data[i];
+        }
+
+        if (array.length > size) {
+            array[size] = null;
+        }
+
+        return array;
+    }
+
+    public void trimToSize() {
+        if (size < data.length) {
+            data = Arrays.copyOf(data, size);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("[");
 
         for (int i = 0; i < size; i++) {
-            if (i > 0) {
+            result.append(data[i]);
+
+            if (i < size - 1) {
                 result.append(", ");
             }
-
-            result.append(data[i]);
         }
 
-        return result.append(']').toString();
+        result.append("]");
+        return result.toString();
     }
 }
